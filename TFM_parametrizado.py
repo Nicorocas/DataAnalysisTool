@@ -90,28 +90,23 @@ for fc in NuevaFCa:
 
 NuevaFC = "Rt_definitivo1"
 #Para Addfield tenemos que establecer unas variables y rellenar los campos en la capa de lineas
-Nombre_campo= "velocidad_coches"
-Nombre_campo1= "velocidad_ciclomotor"
-Nombre_campo2= "prohibido_bicis"
-Nombre_campo3= "prohibido_coches"
-Nombre_campo4= "tiempo_coches"
-Nombre_campo5= "tiempo_ciclomotor"
-Nombre_campo6= "consumo_coche"
-Nombre_campo7= "consumo_moto"
+campos = {0 : "velocidad_coches", 1 : "velocidad_ciclomotor", 2 : "prohibido_bicis", 3 : "prohibido_coches",\
+          4 : "tiempo_coches", 5 : "tiempo_ciclomotor", 6 : "consumo_coche", 7 : "consumo_moto"}
 
-#Field type
-Field_type_text ="TEXT"
-Field_type_Numero = "DOUBLE"
+expresiones = {0 : "velocidad(!claseD!)", 1 : "velocidad(!claseD!)", 2 : "Prohibido_bicis(!claseD!,!tipovehicD!)",\
+               3 : "Prohibido_coches(!claseD!,!tipovehicD!)", 4 : "tiempo_coche(!Shape_Length!,!velocidad_coches!)",\
+               5 : "tiempo_ciclomotor(!Shape_Length!,!velocidad_ciclomotor!)", 6 : "consumo_coches(!claseD!,!Shape_Length!)",\
+               7 : "consumo_motos(!claseD!,!Shape_Length!)"}
 
-#hay que añadir 7 campos asique seran 7 addfields cada uno con su config, e ir añadiendo el CalculatedField
-#Campo 0 Velocidad coches
-arcpy.AddField_management(NuevaFC,Nombre_campo,Field_type_Numero)
-tabla= NuevaFC
-campo = Nombre_campo
-expresion= "velocidad(!claseD!)"
-tipo_expresion = "PYTHON3"
-Codigo_bloque ="""def velocidad(incognita):
+mensajes = {0 : "Campo velocidad coche añadido", 1 : "campo velocidad moto añadido", 2 : "campo prohibido coches añadido",\
+            3 : "campo prohibido bicis añadido", 4 : "campo tiempo en coche añadido", 5 : "campo tiempo en moto añadido",\
+            6 : "campo consumo coches añadido", 7 : "campo consumo motos añadido"}
 
+#Códigos para CalculateField:
+codigos = {}
+
+codigos[0] = """
+def velocidad(incognita):
     if incognita == "Autopista":
         return 120
     if incognita == "Autovía":
@@ -129,17 +124,9 @@ Codigo_bloque ="""def velocidad(incognita):
     if incognita == "Urbano":
         return 50
 """
-tipo_campo = Field_type_Numero
-arcpy.CalculateField_management(tabla,campo,expresion,tipo_expresion,Codigo_bloque,tipo_campo)
-arcpy.AddMessage("campo velocidad coche añadido")
-#Campo 1 Velocidad ciclomotor
-arcpy.AddField_management(NuevaFC,Nombre_campo1,Field_type_Numero)
-tabla= NuevaFC
-campo = Nombre_campo1
-expresion= "velocidad(!claseD!)"
-tipo_expresion = "PYTHON3"
-Codigo_bloque ="""def velocidad(incognita):
 
+codigos[1] = """
+def velocidad(incognita):
     if incognita == "Autopista":
         return 5
     if incognita == "Autovía":
@@ -157,72 +144,9 @@ Codigo_bloque ="""def velocidad(incognita):
     if incognita == "Urbano":
         return 50
 """
-tipo_campo = Field_type_Numero
-arcpy.CalculateField_management(tabla,campo,expresion,tipo_expresion,Codigo_bloque,tipo_campo)
-arcpy.AddMessage("campo velocidad moto añadido")
-#campo4 tiempo en coche
-arcpy.AddField_management(NuevaFC,Nombre_campo4,Field_type_Numero)
-tabla= NuevaFC
-campo = Nombre_campo4
-expresion= "tiempo_coche(!Shape_Length!,!velocidad_coches!)"
-tipo_expresion = "PYTHON3"
-Codigo_bloque ="""def tiempo_coche(espacio,velocidad):
-    return (espacio/velocidad)*100
-"""
-tipo_campo = Field_type_Numero
-arcpy.CalculateField_management(tabla,campo,expresion,tipo_expresion,Codigo_bloque,tipo_campo)
-arcpy.AddMessage("campo tiempo en coche añadido")
-#campo5 tiempo ciclomotor
-arcpy.AddField_management(NuevaFC,Nombre_campo5,Field_type_Numero)
-tabla= NuevaFC
-campo = Nombre_campo5
-expresion= "tiempo_ciclomotor(!Shape_Length!,!velocidad_ciclomotor!)"
-tipo_expresion = "PYTHON3"
-Codigo_bloque ="""def tiempo_ciclomotor(espacio,velocidad):
-    return (espacio/velocidad)*100
-"""
-tipo_campo = Field_type_Numero
-arcpy.CalculateField_management(tabla,campo,expresion,tipo_expresion,Codigo_bloque,tipo_campo)
-arcpy.AddMessage("campo tiempo en moto añadido")
-#Campo6 consumo coche
-arcpy.AddField_management(NuevaFC,Nombre_campo6,Field_type_Numero)
-tabla= NuevaFC
-campo = Nombre_campo6
-expresion= "consumo_coches(!claseD!,!Shape_Length!)"
-tipo_expresion = "PYTHON3"
-Codigo_bloque ="""def consumo_coches(campo1,campo2): #160kwm/km
-    if campo1 == "Autopista" or "Autovía" or "Carretera convencional" or "Carretera multicarril":
-        return 40*campo2
-    if campo1 == "Camino" or "Urbano":
-        return 20*campo2
-"""
-tipo_campo = Field_type_Numero
-arcpy.CalculateField_management(tabla,campo,expresion,tipo_expresion,Codigo_bloque,tipo_campo)
-arcpy.AddMessage("campo consumo coches añadido")
-#Campo7 consumo moto
-arcpy.AddField_management(NuevaFC,Nombre_campo7,Field_type_Numero)
-tabla= NuevaFC
-campo = Nombre_campo7
-expresion= "consumo_motos(!claseD!,!Shape_Length!)"
-tipo_expresion = "PYTHON3"
-Codigo_bloque ="""
-def consumo_motos(campo1,campo2): #160kwm/km
-    if campo1 == "Autopista" or "Autovía" or "Carretera convencional" or "Carretera multicarril":
-        return 10*campo2
-    if campo1 == "Camino" or "Urbano":
-        return 5*campo2
-"""
-tipo_campo = Field_type_Numero
-arcpy.CalculateField_management(tabla,campo,expresion,tipo_expresion,Codigo_bloque,tipo_campo)
-arcpy.AddMessage("campo consumo motos añadido")
-#Campo2 prohibido coches
-arcpy.AddField_management(NuevaFC,Nombre_campo2,Field_type_text)
-tabla= NuevaFC
-campo = Nombre_campo2
-expresion= "Prohibido_coches(!claseD!,!tipovehicD!)"
-tipo_expresion = "PYTHON3"
-Codigo_bloque ="""def Prohibido_coches(incognita,campo2):
 
+codigos[2] = """
+def Prohibido_coches(incognita,campo2):
     if incognita == "Carril bici":
         return "Si"
     if incognita == "Senda":
@@ -232,16 +156,9 @@ Codigo_bloque ="""def Prohibido_coches(incognita,campo2):
     else:
         return "No"
 """
-tipo_campo = Field_type_text
-arcpy.CalculateField_management(tabla,campo,expresion,tipo_expresion,Codigo_bloque,tipo_campo)
-arcpy.AddMessage("campo prohibido coches añadido")
-#Campo3 prohibido bicis
-arcpy.AddField_management(NuevaFC,Nombre_campo3,Field_type_text)
-tabla= NuevaFC
-campo = Nombre_campo3
-expresion= "Prohibido_bicis(!claseD!,!tipovehicD!)"
-tipo_expresion = "PYTHON3"
-Codigo_bloque ="""def Prohibido_bicis(campo1, campo2):
+
+codigos[3] = """
+def Prohibido_bicis(campo1, campo2):
     if campo1 == "Autopista" or "Autovía" or "Carretera multicarril" :
         return "Si"
     if campo2 == "Solo vehículo":
@@ -249,9 +166,70 @@ Codigo_bloque ="""def Prohibido_bicis(campo1, campo2):
     else:
         return "No"
 """
-tipo_campo = Field_type_text
-arcpy.CalculateField_management(tabla,campo,expresion,tipo_expresion,Codigo_bloque,tipo_campo)
-arcpy.AddMessage("campo prohibido bicis añadido")
+
+codigos[4] = """
+def tiempo_coche(espacio,velocidad):
+    return (espacio/velocidad)*100
+"""
+
+codigos[5] = """
+def tiempo_ciclomotor(espacio,velocidad):
+    return (espacio/velocidad)*100
+"""
+
+codigos[6] = """
+def consumo_coches(campo1,campo2): #160kwm/km
+    if campo1 == "Autopista" or "Autovía" or "Carretera convencional" or "Carretera multicarril":
+        return 40*campo2
+    if campo1 == "Camino" or "Urbano":
+        return 20*campo2
+"""
+
+codigos[7] = """
+def consumo_motos(campo1,campo2): #160kwm/km
+    if campo1 == "Autopista" or "Autovía" or "Carretera convencional" or "Carretera multicarril":
+        return 10*campo2
+    if campo1 == "Camino" or "Urbano":
+        return 5*campo2
+"""
+
+#Field type
+Field_type_text ="TEXT"
+Field_type_Numero = "DOUBLE"
+
+
+#hay que añadir 7 campos asique seran 7 addfields cada uno con su config, e ir añadiendo el CalculatedField.
+# Para aligerar el código, crearemos una función general a la que llamar 7 veces.
+def funcion_campos(campo, tipo_campo, expresion, codigo, mensaje, tipo_expresion = "PYTHON3", tabla = NuevaFC):
+    arcpy.AddField_management(tabla, campo, tipo_campo)
+    arcpy.CalculateField_management(tabla, campo, expresion, tipo_expresion, codigo, tipo_campo)
+    arcpy.AddMessage(mensaje)
+
+#Campo 0 Velocidad coches
+funcion_campos(campos[0], Field_type_Numero, expresiones[0], codigos[0], mensajes[0])
+
+#Campo 1 Velocidad ciclomotor
+funcion_campos(campos[1], Field_type_Numero, expresiones[1], codigos[1], mensajes[1])
+
+#Campo2 prohibido coches
+funcion_campos(campos[2], Field_type_text, expresiones[2], codigos[2], mensajes[2])
+
+#Campo3 prohibido bicis
+funcion_campos(campos[3], Field_type_text, expresiones[3], codigos[3], mensajes[3])
+
+#campo4 tiempo en coche
+funcion_campos(campos[4], Field_type_Numero, expresiones[4], codigos[4], mensajes[4])
+
+#campo5 tiempo ciclomotor
+funcion_campos(campos[5], Field_type_Numero, expresiones[5], codigos[5], mensajes[5])
+
+#Campo6 consumo coche
+funcion_campos(campos[6], Field_type_Numero, expresiones[6], codigos[6], mensajes[6])
+
+#Campo7 consumo moto
+funcion_campos(campos[7], Field_type_Numero, expresiones[7], codigos[7], mensajes[7])
+
+
 
 #Ya estas los campos nuevos añadidos y calculados al nuevo shape de Rt_definitivo1,
 # con esta Feature class y con la de rtnodos es con la que haremos el network dataset y posteriormente construiremos la red
