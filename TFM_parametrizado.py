@@ -1,6 +1,8 @@
 import os
 from arcpy import env
 import arcpy
+import pickle
+
 arcpy.env.overwriteOutput = True
 env.overwriteOutput = True
 #Se define el wrokspace de la carpeta donde se va a iterar
@@ -90,108 +92,19 @@ for fc in NuevaFCa:
 
 NuevaFC = "Rt_definitivo1"
 #Para Addfield tenemos que establecer unas variables y rellenar los campos en la capa de lineas
-campos = {0 : "velocidad_coches", 1 : "velocidad_ciclomotor", 2 : "prohibido_bicis", 3 : "prohibido_coches",\
-          4 : "tiempo_coches", 5 : "tiempo_ciclomotor", 6 : "consumo_coche", 7 : "consumo_moto"}
 
-expresiones = {0 : "velocidad(!claseD!)", 1 : "velocidad(!claseD!)", 2 : "Prohibido_bicis(!claseD!,!tipovehicD!)",\
-               3 : "Prohibido_coches(!claseD!,!tipovehicD!)", 4 : "tiempo_coche(!Shape_Length!,!velocidad_coches!)",\
-               5 : "tiempo_ciclomotor(!Shape_Length!,!velocidad_ciclomotor!)", 6 : "consumo_coches(!claseD!,!Shape_Length!)",\
-               7 : "consumo_motos(!claseD!,!Shape_Length!)"}
-
-mensajes = {0 : "Campo velocidad coche añadido", 1 : "campo velocidad moto añadido", 2 : "campo prohibido coches añadido",\
-            3 : "campo prohibido bicis añadido", 4 : "campo tiempo en coche añadido", 5 : "campo tiempo en moto añadido",\
-            6 : "campo consumo coches añadido", 7 : "campo consumo motos añadido"}
-
-#Códigos para CalculateField:
-codigos = {}
-
-codigos[0] = """
-def velocidad(incognita):
-    if incognita == "Autopista":
-        return 120
-    if incognita == "Autovía":
-        return 120
-    if incognita == "Camino":
-        return 20
-    if incognita == "Carretera convencional":
-        return 90
-    if incognita == "Carretera multicarril":
-        return 90
-    if incognita == "Carril bici":
-        return  5
-    if incognita == "Senda":
-        return 5
-    if incognita == "Urbano":
-        return 50
-"""
-
-codigos[1] = """
-def velocidad(incognita):
-    if incognita == "Autopista":
-        return 5
-    if incognita == "Autovía":
-        return 5
-    if incognita == "Camino":
-        return 20
-    if incognita == "Carretera convencional":
-        return 60
-    if incognita == "Carretera multicarril":
-        return 60
-    if incognita == "Carril bici":
-        return  40
-    if incognita == "Senda":
-        return 30
-    if incognita == "Urbano":
-        return 50
-"""
-
-codigos[2] = """
-def Prohibido_coches(incognita,campo2):
-    if incognita == "Carril bici":
-        return "Si"
-    if incognita == "Senda":
-        return "Si"
-    if campo2 == "Peatón+bici":
-        return "Si"
-    else:
-        return "No"
-"""
-
-codigos[3] = """
-def Prohibido_bicis(campo1, campo2):
-    if campo1 == "Autopista" or "Autovía" or "Carretera multicarril" :
-        return "Si"
-    if campo2 == "Solo vehículo":
-        return "Si"
-    else:
-        return "No"
-"""
-
-codigos[4] = """
-def tiempo_coche(espacio,velocidad):
-    return (espacio/velocidad)*100
-"""
-
-codigos[5] = """
-def tiempo_ciclomotor(espacio,velocidad):
-    return (espacio/velocidad)*100
-"""
-
-codigos[6] = """
-def consumo_coches(campo1,campo2): #160kwm/km
-    if campo1 == "Autopista" or "Autovía" or "Carretera convencional" or "Carretera multicarril":
-        return 40*campo2
-    if campo1 == "Camino" or "Urbano":
-        return 20*campo2
-"""
-
-codigos[7] = """
-def consumo_motos(campo1,campo2): #160kwm/km
-    if campo1 == "Autopista" or "Autovía" or "Carretera convencional" or "Carretera multicarril":
-        return 10*campo2
-    if campo1 == "Camino" or "Urbano":
-        return 5*campo2
-"""
+#Los diccionarios necesarios están guardados (con el módulo pickle). Los abrimos con pickle también:
+with open('diccionarios/campos.pkl', 'rb') as f:
+    campos = pkl.loads(f.read())
+    
+with open('diccionarios/expresiones.pkl', 'rb') as f:
+    expresiones = pkl.loads(f.read())
+    
+with open('diccionarios/mensajes.pkl', 'rb') as f:
+    mensajes = pkl.loads(f.read())
+    
+with open('diccionarios/codigos.pkl', 'rb') as f:
+    codigos = pkl.loads(f.read())
 
 #Field type
 Field_type_text ="TEXT"
