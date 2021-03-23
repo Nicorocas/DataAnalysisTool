@@ -25,6 +25,6 @@ El segundo parámetro nos pide una carpeta donde crear la GDB y el tercero el no
 A la derecha se puede ver el resultado de ejecutar la herramienta y la estructura de datos que crea.
 
 
-![Screenshot](screenshot.png)
+![Alt text](/relative/path/Screenshot/screenshot.png?raw=true "Optional Title")
 Ajustar los parámetros y atributos de viaje:
 A continuación, se muestra como se ha configurado el NetworkDataset, este apartado ya no es automatizable y se realiza manualmente ya que no se ha encontrado la manera eficaz de modificar con Python las propiedades del NetworkDataset. Desde ArcGIS pro configuramos los modos de viaje (“Travel models”), los Costes (“Costs”) y las Restricciones(“Restrictions”) a partir de los campos calculados con la herramienta. Con esto ya estaría listo el Network Dataset para construir y comenzar a realizar distintos análisis de red.
