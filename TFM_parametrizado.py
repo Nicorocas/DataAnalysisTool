@@ -167,7 +167,7 @@ campo = Nombre_campo4
 expresion= "tiempo_coche(!Shape_Length!,!velocidad_coches!)"
 tipo_expresion = "PYTHON3"
 Codigo_bloque ="""def tiempo_coche(espacio,velocidad):
-    return (espacio/velocidad)*100
+    return (espacio/(velocidad*1000))
 """
 tipo_campo = Field_type_Numero
 arcpy.CalculateField_management(tabla,campo,expresion,tipo_expresion,Codigo_bloque,tipo_campo)
@@ -179,7 +179,7 @@ campo = Nombre_campo5
 expresion= "tiempo_ciclomotor(!Shape_Length!,!velocidad_ciclomotor!)"
 tipo_expresion = "PYTHON3"
 Codigo_bloque ="""def tiempo_ciclomotor(espacio,velocidad):
-    return (espacio/velocidad)*100
+    return (espacio/(velocidad*1000))
 """
 tipo_campo = Field_type_Numero
 arcpy.CalculateField_management(tabla,campo,expresion,tipo_expresion,Codigo_bloque,tipo_campo)
@@ -188,13 +188,10 @@ arcpy.AddMessage("campo tiempo en moto añadido")
 arcpy.AddField_management(NuevaFC,Nombre_campo6,Field_type_Numero)
 tabla= NuevaFC
 campo = Nombre_campo6
-expresion= "consumo_coches(!claseD!,!Shape_Length!)"
+expresion= "consumo_coches(!Shape_Length!)"
 tipo_expresion = "PYTHON3"
-Codigo_bloque ="""def consumo_coches(campo1,campo2): #160kwm/km
-    if campo1 == "Autopista" or "Autovía" or "Carretera convencional" or "Carretera multicarril":
-        return 40*campo2
-    if campo1 == "Camino" or "Urbano":
-        return 20*campo2
+Codigo_bloque ="""def consumo_coches(campo1): #14kwh/100000m
+    return (14*campo1)/100000
 """
 tipo_campo = Field_type_Numero
 arcpy.CalculateField_management(tabla,campo,expresion,tipo_expresion,Codigo_bloque,tipo_campo)
@@ -203,14 +200,11 @@ arcpy.AddMessage("campo consumo coches añadido")
 arcpy.AddField_management(NuevaFC,Nombre_campo7,Field_type_Numero)
 tabla= NuevaFC
 campo = Nombre_campo7
-expresion= "consumo_motos(!claseD!,!Shape_Length!)"
+expresion= "consumo_motos(!Shape_Length!)"
 tipo_expresion = "PYTHON3"
 Codigo_bloque ="""
-def consumo_motos(campo1,campo2): #160kwm/km
-    if campo1 == "Autopista" or "Autovía" or "Carretera convencional" or "Carretera multicarril":
-        return 10*campo2
-    if campo1 == "Camino" or "Urbano":
-        return 5*campo2
+def consumo_motos(campo1): #2KWh/100000m
+    return (2*campo1)/100000
 """
 tipo_campo = Field_type_Numero
 arcpy.CalculateField_management(tabla,campo,expresion,tipo_expresion,Codigo_bloque,tipo_campo)
@@ -277,12 +271,10 @@ FeatureDataset_destino = FeatureDataset
 arcpy.FeatureClassToGeodatabase_conversion([Clase_entrada,Clase_entrada1],FeatureDataset_destino)
 arcpy.AddMessage("El pájaro esta en nido")
 #comprobar si la FC esta en el feature Dataset
-#Crear el network dataset
+# 2. Crear el network dataset
 Name = "NetworkDataset"
 arcpy.env.workspace= FeatureDataset
 nueva_clase_lineas= "Rt_definitivo1_1"
 nueva_clase_nodos= "Rt_nodo_definitivo1_1"
 arcpy.CreateNetworkDataset_na(FeatureDataset,Name,[nueva_clase_nodos,nueva_clase_lineas])
 arcpy.AddMessage("Se ha creado el NetworkDataset")
-
-
