@@ -13,7 +13,7 @@ nombre_GDB=  arcpy.GetParameterAsText(2) #Nombre de la GDB que se va a crear
 NuevaGDB = arcpy.CreateFileGDB_management(gdb_origen, nombre_GDB)
 NombreGDB = os.path.join(gdb_origen,nombre_GDB)
 #la idea va ser añadir los archivos que se llamen rt_tramo_vial.shp y rt_nodoctra_p.shp a esa GDB#
-### REFERENCIA ESPACIAL MALDITO DESASTREE###
+### REFERENCIA ESPACIAL DSSTRE###
 #Codigo etrs89= 25830  WGS = 4326
 etrs89 = arcpy.SpatialReference(25830)
 wgs = arcpy.SpatialReference(3857)
